@@ -14,7 +14,7 @@ const state = {
 /* ─── Goal suggestions by stage ────────────────────────── */
 const suggestions = {
   career: [
-    'Land 3 interviews at companies I'm excited about',
+    'Land 3 interviews at companies I\'m excited about',
     'Get a job offer in my target field',
     'Complete 2 portfolio projects and update my resume',
   ],
@@ -72,7 +72,7 @@ const suggestedEventsByStage = {
     { icon: '🧑‍🏫', title: 'Find an accountability partner', desc: 'Message one person to check in weekly', urgency: 'Recommended' },
   ],
   finance: [
-    { icon: '📊', title: 'Budget review', desc: '45 min reviewing last month's spending', urgency: 'High priority' },
+    { icon: '📊', title: 'Budget review', desc: '45 min reviewing last month\'s spending', urgency: 'High priority' },
     { icon: '🏦', title: 'Set up auto-transfer', desc: 'Automate your savings or debt payment', urgency: 'This week' },
     { icon: '📉', title: 'Track all spending', desc: 'Log every expense — use an app or sheet', urgency: 'Recommended' },
     { icon: '📞', title: 'Call to negotiate a bill', desc: 'Pick one recurring bill to try to reduce', urgency: 'Recommended' },
