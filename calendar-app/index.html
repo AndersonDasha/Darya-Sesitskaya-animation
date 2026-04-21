@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusWeek — 12-Week Goal Calendar</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- NOTIFICATION BANNER -->
+<div id="notification-banner" class="notification hidden">
+  <div class="notif-icon">🔔</div>
+  <div class="notif-content">
+    <span id="notif-text"></span>
+  </div>
+  <button class="notif-close" onclick="dismissNotification()">✕</button>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="screen active">
+
+  <!-- Step 1: Welcome -->
+  <div id="step-welcome" class="onboarding-step active">
+    <div class="onboarding-card">
+      <div class="logo-mark">◈</div>
+      <h1>FocusWeek</h1>
+      <p class="tagline">12 weeks. One goal. Real progress.</p>
+      <p class="body-text">We'll help you pick a goal that fits your life right now, then structure your calendar every week to actually get there.</p>
+      <button class="btn-primary" onclick="goToStep('step-stage')">Get started</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Life Stage -->
+  <div id="step-stage" class="onboarding-step">
+    <div class="onboarding-card wide">
+      <div class="step-indicator">Step 1 of 3</div>
+      <h2>What's your current stage of life?</h2>
+      <p class="body-text">This helps us suggest the right kind of goal for the next 12 weeks.</p>
+      <div class="stage-grid">
+        <button class="stage-card" data-stage="career" onclick="selectStage(this)">
+          <span class="stage-icon">💼</span>
+          <span class="stage-label">Career transition</span>
+          <span class="stage-sub">Job search, new role, promotion</span>
+        </button>
+        <button class="stage-card" data-stage="family" onclick="selectStage(this)">
+          <span class="stage-icon">👶</span>
+          <span class="stage-label">Growing family</span>
+          <span class="stage-sub">Pregnancy, new baby, parenting</span>
+        </button>
+        <button class="stage-card" data-stage="health" onclick="selectStage(this)">
+          <span class="stage-icon">🏃</span>
+          <span class="stage-label">Health & fitness</span>
+          <span class="stage-sub">Weight loss, training, wellness</span>
+        </button>
+        <button class="stage-card" data-stage="learning" onclick="selectStage(this)">
+          <span class="stage-icon">📚</span>
+          <span class="stage-label">Learning & growth</span>
+          <span class="stage-sub">Course, certification, skill</span>
+        </button>
+        <button class="stage-card" data-stage="finance" onclick="selectStage(this)">
+          <span class="stage-icon">💰</span>
+          <span class="stage-label">Financial goal</span>
+          <span class="stage-sub">Save, invest, pay off debt</span>
+        </button>
+        <button class="stage-card" data-stage="creative" onclick="selectStage(this)">
+          <span class="stage-icon">🎨</span>
+          <span class="stage-label">Creative project</span>
+          <span class="stage-sub">Write, build, launch something</span>
+        </button>
+      </div>
+      <button class="btn-primary" id="btn-next-stage" disabled onclick="goToStep('step-goal')">Continue</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Goal -->
+  <div id="step-goal" class="onboarding-step">
+    <div class="onboarding-card">
+      <div class="step-indicator">Step 2 of 3</div>
+      <h2>Set your 12-week goal</h2>
+      <p class="body-text">Be specific. What does success look like on <strong id="goal-end-date"></strong>?</p>
+      <div class="suggested-goals" id="suggested-goals"></div>
+      <div class="goal-input-wrap">
+        <textarea id="goal-input" placeholder="Write your goal here…" rows="3" oninput="syncGoalInput()"></textarea>
+        <div class="char-count"><span id="char-count">0</span> / 120</div>
+      </div>
+      <div class="commitment-block">
+        <label class="commitment-label">Hours per week I can commit</label>
+        <div class="hours-picker">
+          <button onclick="adjustHours(-1)">−</button>
+          <span id="hours-val">5</span>
+          <button onclick="adjustHours(1)">+</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-next-goal" disabled onclick="goToStep('step-confirm')">Set my goal</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Confirm -->
+  <div id="step-confirm" class="onboarding-step">
+    <div class="onboarding-card">
+      <div class="step-indicator">Step 3 of 3</div>
+      <div class="confirm-check">✓</div>
+      <h2>You're set up!</h2>
+      <div class="goal-summary" id="goal-summary"></div>
+      <p class="body-text small">Every Sunday evening you'll get a planning session. Each morning, a daily focus check-in.</p>
+      <button class="btn-primary" onclick="launchApp()">Open my calendar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">◈ FocusWeek</div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" onclick="showView('calendar', this)">
+        <span class="nav-icon">📅</span> Calendar
+      </a>
+      <a href="#" class="nav-item" onclick="showView('planning', this)">
+        <span class="nav-icon">🗓</span> Sunday Planning
+      </a>
+      <a href="#" class="nav-item" onclick="showView('review', this)">
+        <span class="nav-icon">⭐</span> Weekly Review
+      </a>
+    </nav>
+    <div class="sidebar-goal-box">
+      <div class="goal-box-label">12-Week Goal</div>
+      <div class="goal-box-text" id="sidebar-goal-text"></div>
+      <div class="goal-box-progress">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <span id="progress-label">Week 1 of 12</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- CALENDAR VIEW -->
+    <div id="view-calendar" class="view active">
+      <div class="view-header">
+        <div>
+          <h2 class="view-title">This Week</h2>
+          <p class="view-subtitle" id="week-range-label"></p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost" onclick="prevWeek()">← Prev</button>
+          <button class="btn-ghost" onclick="nextWeek()">Next →</button>
+          <button class="btn-secondary" onclick="showView('planning', null)">Sunday Planning</button>
+        </div>
+      </div>
+
+      <div class="insight-bar" id="insight-bar">
+        <span class="insight-icon">💡</span>
+        <span id="insight-text"></span>
+      </div>
+
+      <div class="week-grid" id="week-grid"></div>
+
+      <div class="suggested-events-panel">
+        <h3>Suggested events this week</h3>
+        <p class="panel-sub">Based on your goal, we recommend adding these to your calendar:</p>
+        <div id="suggested-events-list"></div>
+      </div>
+    </div>
+
+    <!-- SUNDAY PLANNING VIEW -->
+    <div id="view-planning" class="view">
+      <div class="view-header">
+        <div>
+          <h2 class="view-title">Sunday Planning</h2>
+          <p class="view-subtitle">Set yourself up for a focused week ahead</p>
+        </div>
+      </div>
+
+      <div class="planning-sections">
+
+        <div class="planning-card">
+          <div class="planning-card-header">
+            <span class="planning-icon">🎯</span>
+            <h3>This week's focus</h3>
+          </div>
+          <p class="planning-hint">What's the single most important thing you can do this week for your goal?</p>
+          <textarea class="planning-textarea" id="week-focus" placeholder="This week I will…"></textarea>
+        </div>
+
+        <div class="planning-card">
+          <div class="planning-card-header">
+            <span class="planning-icon">📋</span>
+            <h3>Key events to schedule</h3>
+          </div>
+          <p class="planning-hint">Block these in your calendar before the week starts:</p>
+          <div id="planning-events-checklist"></div>
+        </div>
+
+        <div class="planning-card">
+          <div class="planning-card-header">
+            <span class="planning-icon">⚡</span>
+            <h3>Potential blockers</h3>
+          </div>
+          <p class="planning-hint">What could get in the way this week? How will you handle it?</p>
+          <textarea class="planning-textarea" id="week-blockers" placeholder="Possible obstacle → my plan…"></textarea>
+        </div>
+
+        <div class="planning-card">
+          <div class="planning-card-header">
+            <span class="planning-icon">📊</span>
+            <h3>Goal alignment check</h3>
+          </div>
+          <div class="alignment-meters" id="alignment-meters"></div>
+        </div>
+
+      </div>
+
+      <button class="btn-primary" onclick="savePlanning()">Save planning session</button>
+    </div>
+
+    <!-- WEEKLY REVIEW VIEW -->
+    <div id="view-review" class="view">
+      <div class="view-header">
+        <div>
+          <h2 class="view-title">Weekly Review</h2>
+          <p class="view-subtitle">Celebrate wins and learn from the week</p>
+        </div>
+      </div>
+
+      <div class="review-sections">
+
+        <div class="review-card wins">
+          <h3>🏆 Wins this week</h3>
+          <p class="planning-hint">What did you accomplish that moved you toward your goal?</p>
+          <div class="wins-input-row">
+            <input type="text" class="win-input" id="new-win" placeholder="Add a win…" onkeydown="if(event.key==='Enter') addWin()" />
+            <button class="btn-add" onclick="addWin()">Add</button>
+          </div>
+          <ul class="wins-list" id="wins-list"></ul>
+        </div>
+
+        <div class="review-card">
+          <h3>📈 Goal progress</h3>
+          <div class="progress-snapshot" id="review-progress"></div>
+        </div>
+
+        <div class="review-card">
+          <h3>💬 What I'd do differently</h3>
+          <textarea class="planning-textarea" id="review-retro" placeholder="Next week I'll change…"></textarea>
+        </div>
+
+        <div class="review-card">
+          <h3>⭐ Focus score this week</h3>
+          <div class="star-rating" id="star-rating"></div>
+          <p class="score-label" id="score-label">Tap to rate your week</p>
+        </div>
+
+      </div>
+
+      <button class="btn-primary" onclick="saveReview()">Complete review</button>
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
